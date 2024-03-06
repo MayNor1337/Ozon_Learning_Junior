@@ -9,7 +9,7 @@ namespace Workshop.Api.Controllers.V1;
 public class DeliveryPriceController : ControllerBase
 {
     [HttpPost]
-    public IEnumerable<CalculateResponse> Calculate(CalculateRequest request)
+    public CalculateResponse Calculate(CalculateRequest request)
     {
         throw new NotImplementedException();
     }
