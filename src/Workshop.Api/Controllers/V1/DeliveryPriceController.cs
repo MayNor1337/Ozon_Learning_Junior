@@ -4,7 +4,7 @@ using Workshop.Api.Responses.V1;
 
 namespace Workshop.Api.Controllers.V1;
 
-[ApiController]
+[ApiController]     
 [Route("v1/[controller]")]
 public class DeliveryPriceController : ControllerBase
 {
