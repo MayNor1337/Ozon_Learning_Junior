@@ -15,7 +15,7 @@ public class DeliveryPriceController : ControllerBase
     }
     
     [HttpPost]
-    public GetHistoryResponse GetHistory(GetHistoryRequest request)
+    public IEnumerable<GetHistoryResponse> GetHistory(GetHistoryRequest request)
     {
         throw new NotImplementedException();
     }
