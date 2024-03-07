@@ -1,6 +1,18 @@
-﻿namespace Workshop.Api.Dal.Repositories;
+﻿using Workshop.Api.Dal.Entities;
+using Workshop.Api.Dal.Repositories.Interfaces;
 
-public class StorageRepository
+namespace Workshop.Api.Dal.Repositories;
+
+public class StorageRepository : IStorageRepository
 {
-    
+    private readonly List<StorageEntity> _storage = new();
+    public void Save(StorageEntity entity)
+    {
+        throw new NotImplementedException();
+    }
+
+    public IEnumerable<StorageEntity> Query()
+    {
+        throw new NotImplementedException();
+    }
 }
