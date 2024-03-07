@@ -2,4 +2,4 @@
 
 public record CalculationLogModel(
     double Volume,
-    double Price);g
+    double Price);
