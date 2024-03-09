@@ -3,4 +3,5 @@
 public record GoodModels(
     int Lenght,
     int Width,
-    int Height);
+    int Height,
+    double Weight);
