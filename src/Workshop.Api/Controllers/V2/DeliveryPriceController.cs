@@ -1,14 +1,14 @@
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Workshop.Api.Bll.Models;
 using Workshop.Api.Bll.Services.Interfaces;
-using Workshop.Api.Requests.V1;
-using Workshop.Api.Responses.V1;
+using Workshop.Api.Requests.V2;
+using Workshop.Api.Responses.V2;
 
-namespace Workshop.Api.Controllers.V1;
+namespace Workshop.Api.Controllers.V2;
 
 [ApiController]     
-[Route("v1/[controller]")]
-public class DeliveryPriceController : ControllerBase
+[Route("v2/[controller]")]
+public class DeliveryPriceController
 {
     private readonly IPriceCalculator _priceCalculator;
 
@@ -25,7 +25,8 @@ public class DeliveryPriceController : ControllerBase
                 .Select(x => new GoodModels(
                     x.Lenght,
                     x.Width,
-                    x.Height)));
+                    x.Height,
+                    x.Weight)));
 
         return new CalculateResponse(result);
     }
@@ -37,7 +38,7 @@ public class DeliveryPriceController : ControllerBase
 
         return log
             .Select(x => new GetHistoryResponse(
-                new CargoResponse(x.Volume),
+                new CargoResponse(x.Volume, x.Weight),
                 x.Price));
     }
 }

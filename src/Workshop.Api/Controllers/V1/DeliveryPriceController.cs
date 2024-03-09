@@ -25,7 +25,8 @@ public class DeliveryPriceController : ControllerBase
                 .Select(x => new GoodModels(
                     x.Lenght,
                     x.Width,
-                    x.Height)));
+                    x.Height,
+                    0)));
 
         return new CalculateResponse(result);
     }

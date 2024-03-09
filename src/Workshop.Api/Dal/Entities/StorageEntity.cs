@@ -3,4 +3,5 @@
 public record StorageEntity(
     double Volume,
     double Price,
+    double Weight,
     DateTime At);
