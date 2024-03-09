@@ -10,6 +10,7 @@ public class PriceCalculatorService : IPriceCalculator
 {
     private readonly IStorageRepository _storageRepository;
     private const double VolumeRatio = 3.27;
+    private const double WeightRatio = 1.34;
 
     public PriceCalculatorService(IStorageRepository storageRepository)
     {
@@ -23,17 +24,20 @@ public class PriceCalculatorService : IPriceCalculator
             throw new ArgumentException("The array must not be empty");
         }
 
-        var volume = goods
-            .Sum(x => x.Height * x.Lenght * x.Width);
+        var volumePrice = Volume(goods, out var volume);
 
-        double price = volume * VolumeRatio / 1000;
+        var weightPrice = WeightPrice(goods, out var weight);
+
+        double resultPrice = Math.Max(volumePrice, weightPrice);
+        
         
         _storageRepository.Save(new StorageEntity(
             volume,
-            price,
+            resultPrice,
+            weight,
             DateTime.UtcNow));
         
-        return price;
+        return resultPrice;
     }
 
     public IEnumerable<CalculationLogModel> QueryLog(int take)
@@ -47,6 +51,23 @@ public class PriceCalculatorService : IPriceCalculator
             .OrderBy(x => x.At)
             .Take(take);
 
-        return log.Select(x => new CalculationLogModel(x.Volume, x.Price));
+        return log.Select(x => new CalculationLogModel(x.Volume, x.Price, x.Weight));
+    }
+
+    private double WeightPrice(IEnumerable<GoodModels> goods, out double weight)
+    {
+        weight = goods.Sum(x => x.Weight);
+
+        double weightPrice = weight * WeightRatio;
+        return weightPrice;
+    }
+
+    private double Volume(IEnumerable<GoodModels> goods, out int volume)
+    {
+        volume = goods
+            .Sum(x => x.Height * x.Lenght * x.Width);
+
+        double volumePrice = volume * VolumeRatio / 1000;
+        return volumePrice;
     }
 }
