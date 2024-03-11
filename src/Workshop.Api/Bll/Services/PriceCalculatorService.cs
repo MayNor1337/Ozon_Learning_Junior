@@ -36,6 +36,7 @@ public class PriceCalculatorService : IPriceCalculator
             resultPrice,
             weight,
             distance,
+            goods.Count(),
             DateTime.UtcNow));
         
         return resultPrice;
