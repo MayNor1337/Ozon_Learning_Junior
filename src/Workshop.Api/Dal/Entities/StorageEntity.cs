@@ -5,4 +5,5 @@ public record StorageEntity(
     double Price,
     double Weight,
     double Distance,
+    int Amount,
     DateTime At);
