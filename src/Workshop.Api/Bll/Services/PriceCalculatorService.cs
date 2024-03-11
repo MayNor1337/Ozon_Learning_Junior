@@ -1,5 +1,4 @@
-﻿using System.Linq.Expressions;
-using Workshop.Api.Bll.Models;
+﻿using Workshop.Api.Bll.Models;
 using Workshop.Api.Bll.Services.Interfaces;
 using Workshop.Api.Dal.Entities;
 using Workshop.Api.Dal.Repositories.Interfaces;
@@ -17,24 +16,26 @@ public class PriceCalculatorService : IPriceCalculator
         _storageRepository = storageRepository;
     }
 
-    public double CalculatePrice(IEnumerable<GoodModels> goods)
+    public double CalculatePrice(IEnumerable<GoodModels> goods, double distance)
     {
-        if (goods.Any())
+        var goodModelsEnumerable = goods as GoodModels[] ?? goods.ToArray();
+        if (goodModelsEnumerable.Any() is false)
         {
             throw new ArgumentException("The array must not be empty");
         }
 
-        var volumePrice = Volume(goods, out var volume);
+        var volumePrice = Volume(goodModelsEnumerable, out var volume);
 
-        var weightPrice = WeightPrice(goods, out var weight);
+        var weightPrice = WeightPrice(goodModelsEnumerable, out var weight);
 
-        double resultPrice = Math.Max(volumePrice, weightPrice);
-        
+        double distanceInKilometers = distance / 1000d;
+        double resultPrice = Math.Max(volumePrice, weightPrice) * distanceInKilometers;
         
         _storageRepository.Save(new StorageEntity(
             volume,
             resultPrice,
             weight,
+            distance,
             DateTime.UtcNow));
         
         return resultPrice;
@@ -51,7 +52,12 @@ public class PriceCalculatorService : IPriceCalculator
             .OrderBy(x => x.At)
             .Take(take);
 
-        return log.Select(x => new CalculationLogModel(x.Volume, x.Price, x.Weight));
+        return log.Select(x => new CalculationLogModel(x.Volume, x.Price, x.Weight, x.Distance));
+    }
+
+    public void ClearLogs()
+    {
+        _storageRepository.Clear();
     }
 
     private double WeightPrice(IEnumerable<GoodModels> goods, out double weight)
@@ -67,7 +73,7 @@ public class PriceCalculatorService : IPriceCalculator
         volume = goods
             .Sum(x => x.Height * x.Lenght * x.Width);
 
-        double volumePrice = volume * VolumeRatio / 1000;
+        double volumePrice = volume * VolumeRatio;
         return volumePrice;
     }
 }
