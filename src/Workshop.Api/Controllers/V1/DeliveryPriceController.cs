@@ -26,7 +26,8 @@ public class DeliveryPriceController : ControllerBase
                     x.Lenght,
                     x.Width,
                     x.Height,
-                    0)));
+                    0)),
+            1);
 
         return new CalculateResponse(result);
     }
@@ -40,5 +41,11 @@ public class DeliveryPriceController : ControllerBase
             .Select(x => new GetHistoryResponse(
                 new CargoResponse(x.Volume),
                 x.Price));
+    }
+
+    [HttpPost("delete-history")]
+    public void DeleteHistory()
+    {
+        _priceCalculator.ClearLogs();
     }
 }

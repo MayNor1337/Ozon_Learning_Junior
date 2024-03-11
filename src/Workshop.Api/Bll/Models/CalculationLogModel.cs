@@ -3,4 +3,5 @@
 public record CalculationLogModel(
     double Volume,
     double Price,
-    double Weight);
+    double Weight,
+    double Distance);
