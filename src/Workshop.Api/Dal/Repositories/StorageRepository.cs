@@ -6,13 +6,19 @@ namespace Workshop.Api.Dal.Repositories;
 public class StorageRepository : IStorageRepository
 {
     private readonly List<StorageEntity> _storage = new();
+
     public void Save(StorageEntity entity)
     {
-        throw new NotImplementedException();
+        _storage.Add(entity);
     }
 
     public IEnumerable<StorageEntity> Query()
     {
-        throw new NotImplementedException();
+        return _storage;
+    }
+
+    public void Clear()
+    {
+        _storage.Clear();
     }
 }

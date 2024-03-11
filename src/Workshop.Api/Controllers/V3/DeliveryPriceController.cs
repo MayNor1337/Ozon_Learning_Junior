@@ -1,14 +1,14 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Workshop.Api.Bll.Models;
 using Workshop.Api.Bll.Services.Interfaces;
-using Workshop.Api.Requests.V2;
-using Workshop.Api.Responses.V2;
+using Workshop.Api.Requests.V3;
+using Workshop.Api.Responses.V3;
 
-namespace Workshop.Api.Controllers.V2;
+namespace Workshop.Api.Controllers.V3;
 
 [ApiController]     
-[Route("v2/[controller]")]
-public class DeliveryPriceController
+[Route("v3/[controller]")]
+public class DeliveryPriceController : ControllerBase
 {
     private readonly IPriceCalculator _priceCalculator;
     private readonly IAnalyticsCollection _analyticsCollection;
@@ -28,8 +28,7 @@ public class DeliveryPriceController
                     x.Lenght,
                     x.Width,
                     x.Height,
-                    x.Weight)),
-            1);
+                    x.Weight)), request.Distance);
 
         return new CalculateResponse(result);
     }
@@ -42,7 +41,7 @@ public class DeliveryPriceController
         return log
             .Select(x => new GetHistoryResponse(
                 new CargoResponse(x.Volume, x.Weight),
-                x.Price));
+                x.Price, x.Distance));
     }
     
     [HttpPost("delete-history")]
