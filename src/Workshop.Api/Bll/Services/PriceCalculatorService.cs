@@ -1,4 +1,5 @@
-﻿using Workshop.Api.Bll.Models;
+﻿using Microsoft.Extensions.Options;
+using Workshop.Api.Bll.Models;
 using Workshop.Api.Bll.Services.Interfaces;
 using Workshop.Api.Dal.Entities;
 using Workshop.Api.Dal.Repositories.Interfaces;
@@ -7,16 +8,20 @@ namespace Workshop.Api.Bll.Services;
 
 public class PriceCalculatorService : IPriceCalculator
 {
+    private readonly decimal _volumeToPriceRation;
+    private readonly decimal _weightToPriceRation;
     private readonly IStorageRepository _storageRepository;
-    private const double VolumeRatio = 3.27;
-    private const double WeightRatio = 1.34;
 
-    public PriceCalculatorService(IStorageRepository storageRepository)
+    public PriceCalculatorService(
+        IOptionsSnapshot<PriceCalculatorOptions> options,
+        IStorageRepository storageRepository)
     {
+        _volumeToPriceRation = options.Value.VolumeToPriceRation;
+        _weightToPriceRation = options.Value.WeightToPriceRation;
         _storageRepository = storageRepository;
     }
 
-    public double CalculatePrice(IEnumerable<GoodModels> goods, double distance)
+    public decimal CalculatePrice(IEnumerable<GoodModels> goods, decimal distance)
     {
         var goodModelsEnumerable = goods as GoodModels[] ?? goods.ToArray();
         if (goodModelsEnumerable.Any() is false)
@@ -28,8 +33,8 @@ public class PriceCalculatorService : IPriceCalculator
 
         var weightPrice = WeightPrice(goodModelsEnumerable, out var weight);
 
-        double distanceInKilometers = distance / 1000d;
-        double resultPrice = Math.Max(volumePrice, weightPrice) * distanceInKilometers;
+        decimal distanceInKilometers = distance / 1000m;
+        decimal resultPrice = Math.Max(volumePrice, weightPrice) * distanceInKilometers;
         
         _storageRepository.Save(new StorageEntity(
             volume,
@@ -61,20 +66,20 @@ public class PriceCalculatorService : IPriceCalculator
         _storageRepository.Clear();
     }
 
-    private double WeightPrice(IEnumerable<GoodModels> goods, out double weight)
+    private decimal WeightPrice(IEnumerable<GoodModels> goods, out decimal weight)
     {
         weight = goods.Sum(x => x.Weight);
 
-        double weightPrice = weight * WeightRatio;
+        decimal weightPrice = weight * _weightToPriceRation;
         return weightPrice;
     }
 
-    private double Volume(IEnumerable<GoodModels> goods, out int volume)
+    private decimal Volume(IEnumerable<GoodModels> goods, out int volume)
     {
         volume = goods
             .Sum(x => x.Height * x.Lenght * x.Width);
 
-        double volumePrice = volume * VolumeRatio;
+        decimal volumePrice = volume * _volumeToPriceRation;
         return volumePrice;
     }
 }

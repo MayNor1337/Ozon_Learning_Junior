@@ -26,17 +26,17 @@ public class AnalyticsCollectionService : IAnalyticsCollection
             WavgPrice(data));
     }
 
-    private double GetMaxWeight(IEnumerable<StorageEntity> data) => data.Max(x => x.Weight);
+    private decimal GetMaxWeight(IEnumerable<StorageEntity> data) => data.Max(x => x.Weight);
     
-    private double GetMaxVolume(IEnumerable<StorageEntity> data) => data.Max(x => x.Volume);
+    private decimal GetMaxVolume(IEnumerable<StorageEntity> data) => data.Max(x => x.Volume);
     
-    private double GetMaxDistanceForHeaviestGood(IEnumerable<StorageEntity> data) => data.OrderBy(x => x.Weight).First().Distance;
+    private decimal GetMaxDistanceForHeaviestGood(IEnumerable<StorageEntity> data) => data.OrderBy(x => x.Weight).First().Distance;
     
-    private double GetMaxDistanceForLargestGood(IEnumerable<StorageEntity> data) => data.OrderBy(x => x.Volume).First().Distance;
+    private decimal GetMaxDistanceForLargestGood(IEnumerable<StorageEntity> data) => data.OrderBy(x => x.Volume).First().Distance;
 
-    private double WavgPrice(IEnumerable<StorageEntity> data)
+    private decimal WavgPrice(IEnumerable<StorageEntity> data)
     {
-        double weightedAverageCost = data.Sum(x => x.Price * x.Amount) / data.Sum(x => x.Amount);
+        decimal weightedAverageCost = data.Sum(x => x.Price * x.Amount) / data.Sum(x => x.Amount);
 
         return weightedAverageCost;
     }

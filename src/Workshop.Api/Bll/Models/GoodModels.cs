@@ -4,4 +4,4 @@ public record GoodModels(
     int Lenght,
     int Width,
     int Height,
-    double Weight);
+    decimal Weight);

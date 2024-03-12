@@ -2,5 +2,5 @@
 
 public record GetHistoryResponse(
     V2.CargoResponse Cargo,
-    double Price);
+    decimal Price);
     
