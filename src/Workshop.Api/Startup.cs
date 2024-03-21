@@ -1,9 +1,14 @@
-﻿using Microsoft.Extensions.Options;
-using Workshop.Api.Bll.Models;
+﻿using System.Net;
+using Microsoft.AspNetCore.Mvc;
+using Workshop.Api.ActionFilters;
+using Workshop.Api.Bll.Models.Options;
 using Workshop.Api.Bll.Services;
 using Workshop.Api.Bll.Services.Interfaces;
+using Workshop.Api.Controllers;
 using Workshop.Api.Dal.Repositories;
 using Workshop.Api.Dal.Repositories.Interfaces;
+using Workshop.Api.HostedServices;
+using Workshop.Api.Middlewares;
 
 namespace Workshop.Api;
 
@@ -22,8 +27,23 @@ public class Startup
 
     public void ConfigureServices(IServiceCollection services)
     {
-        services.Configure<PriceCalculatorOptions>(_configuration.GetSection("PriceCalculatorOptions"));
+        services.AddMvc()
+            .AddMvcOptions(x =>
+            {
+                x.Filters.Add(new ExceptionFilter());
+                x.Filters.Add(new ResponseTypeAttribute((int)HttpStatusCode.InternalServerError));
+                x.Filters.Add(new ResponseTypeAttribute((int)HttpStatusCode.BadRequest));
+                x.Filters.Add(new ProducesResponseTypeAttribute((int)HttpStatusCode.OK));
+            });
         
+        services.AddControllersWithViews().AddJsonOptions(options =>
+        {
+            options.JsonSerializerOptions.PropertyNamingPolicy = new SnakeCaseNamingPolicy();
+        });
+
+        services.Configure<PriceCalculatorOptions>(_configuration.GetSection("PriceCalculatorOptions"));
+        services.Configure<GoodHostedServiceOptions>(_configuration.GetSection("GoodHostedServiceOptions"));
+
         services.AddControllers();
         services.AddEndpointsApiExplorer();
 
@@ -34,8 +54,13 @@ public class Startup
 
         services.AddScoped<IPriceCalculator, PriceCalculatorService>();
 
-        services.AddSingleton<IStorageRepository, StorageRepository>();
         services.AddScoped<IAnalyticsCollection, AnalyticsCollectionService>();
+        services.AddHostedService<GoodSyncHostedService>();
+        
+        services.AddSingleton<IGoodRepository, GoodRepository>();
+        services.AddSingleton<IStorageRepository, StorageRepository>();
+        services.AddScoped<IGoodsService, GoodsService>();
+        services.AddHttpContextAccessor();
     }
 
     public void Configure(
@@ -49,10 +74,15 @@ public class Startup
         }
 
         app.UseRouting();
+        app.Map("/v3/DeliveryPriceController/total_price", middleware =>
+        {
+            app.UseMiddleware<TotalGoodPriceLoggerMiddleware>();
+        });
 
         app.UseEndpoints(endpoints =>
         {
             endpoints.MapControllers();
+            endpoints.MapDefaultControllerRoute();
         });
     }
 }

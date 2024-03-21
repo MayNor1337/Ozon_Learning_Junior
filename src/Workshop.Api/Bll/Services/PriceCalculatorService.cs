@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Options;
 using Workshop.Api.Bll.Models;
+using Workshop.Api.Bll.Models.Options;
 using Workshop.Api.Bll.Services.Interfaces;
 using Workshop.Api.Dal.Entities;
 using Workshop.Api.Dal.Repositories.Interfaces;
@@ -74,7 +75,7 @@ public class PriceCalculatorService : IPriceCalculator
         return weightPrice;
     }
 
-    private decimal Volume(IEnumerable<GoodModels> goods, out int volume)
+    private decimal Volume(IEnumerable<Models.GoodModels> goods, out int volume)
     {
         volume = goods
             .Sum(x => x.Height * x.Lenght * x.Width);

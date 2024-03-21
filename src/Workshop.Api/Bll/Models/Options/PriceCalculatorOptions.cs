@@ -1,4 +1,4 @@
-﻿namespace Workshop.Api.Bll.Models;
+﻿namespace Workshop.Api.Bll.Models.Options;
 
 public class PriceCalculatorOptions
 {
