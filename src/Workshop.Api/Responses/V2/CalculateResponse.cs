@@ -1,3 +1,3 @@
 ﻿namespace Workshop.Api.Responses.V2;
 
-public record CalculateResponse(double price);
+public record CalculateResponse(decimal price);

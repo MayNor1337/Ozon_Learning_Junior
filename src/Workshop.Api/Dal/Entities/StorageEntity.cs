@@ -1,9 +1,9 @@
 ﻿namespace Workshop.Api.Dal.Entities;
 
 public record StorageEntity(
-    double Volume,
-    double Price,
-    double Weight,
-    double Distance,
+    decimal Volume,
+    decimal Price,
+    decimal Weight,
+    decimal Distance,
     int Amount,
     DateTime At);
