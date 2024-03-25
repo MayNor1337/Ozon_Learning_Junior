@@ -3,6 +3,7 @@ using Api.ActionFilters;
 using Api.Controllers;
 using Api.HostedServices;
 using Api.Middlewares;
+using Domain.DependencyInjection.Extensions;
 using Domain.Models.Options;
 using Infrastructure;
 using Microsoft.AspNetCore.Mvc;
@@ -24,34 +25,26 @@ public class Startup
 
     public void ConfigureServices(IServiceCollection services)
     {
-        services.AddMvc()
-            .AddMvcOptions(x =>
+        void SetupAction(MvcOptions x)
+        {
+            x.Filters.Add(new ExceptionFilter());
+            x.Filters.Add(new ResponseTypeAttribute((int)HttpStatusCode.InternalServerError));
+            x.Filters.Add(new ResponseTypeAttribute((int)HttpStatusCode.BadRequest));
+            x.Filters.Add(new ProducesResponseTypeAttribute((int)HttpStatusCode.OK));
+        }
+
+        services
+            .AddInfrastructure(_configuration)
+            .AddDomain(_configuration)
+            .AddControllers()
+            .AddMvcOptions(SetupAction).Services
+            .AddEndpointsApiExplorer()
+            .AddSwaggerGen(o =>
             {
-                x.Filters.Add(new ExceptionFilter());
-                x.Filters.Add(new ResponseTypeAttribute((int)HttpStatusCode.InternalServerError));
-                x.Filters.Add(new ResponseTypeAttribute((int)HttpStatusCode.BadRequest));
-                x.Filters.Add(new ProducesResponseTypeAttribute((int)HttpStatusCode.OK));
-            });
-        
-        services.AddControllersWithViews().AddJsonOptions(options =>
-        {
-            options.JsonSerializerOptions.PropertyNamingPolicy = new SnakeCaseNamingPolicy();
-        });
-
-        services.Configure<GoodHostedServiceOptions>(_configuration.GetSection("GoodHostedServiceOptions"));
-
-        services.AddControllers();
-        services.AddEndpointsApiExplorer();
-
-        services.AddSwaggerGen(o =>
-        {
-            o.CustomSchemaIds(x => x.FullName);
-        });
-        
-        services.AddHostedService<GoodSyncHostedService>();
-        services.AddInfrastructure();
-        
-        services.AddHttpContextAccessor();
+                o.CustomSchemaIds(x => x.FullName);
+            })
+            .AddHostedService<GoodSyncHostedService>()
+            .AddHttpContextAccessor();
     }
 
     public void Configure(
